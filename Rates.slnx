@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="LICENSE" />
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="Rates.Common.Tests/Utils.Rates.Common.Tests.csproj" />
+  <Project Path="Rates.Common/Utils.Rates.Common.csproj" />
+  <Project Path="Rates.Protocol.Tests/Utils.Rates.Protocol.Tests.csproj" />
+  <Project Path="Rates.Protocol/Utils.Rates.Protocol.csproj" />
+</Solution>
