@@ -1,14 +1,11 @@
 # Skyline.DataMiner.Utils.Rates.Common
 
-## About
-
-Library providing common methods used to calculate rates.
-
 ## Projects
 
-* For more information about Skyline.DataMiner.Utils.Rates.Common, see [Utils.Rates.Common/README.md](Utils.Rates.Common/README.md).
+* For more information about Skyline.DataMiner.Utils.Rates.Common, see [Rates.Common/README.md](Rates.Common/README.md).
+* For more information about Skyline.DataMiner.Utils.Rates.Protocol, see [Rates.Protocol/README.md](Rates.Protocol/README.md).
 
-### About DataMiner
+## About DataMiner
 
 DataMiner is a transformational platform that provides vendor-independent control and monitoring of devices and services. Out of the box and by design, it addresses key challenges such as security, complexity, multi-cloud, and much more. It has a pronounced open architecture and powerful capabilities enabling users to evolve easily and continuously.
 
@@ -19,9 +16,6 @@ A unique catalog of 7000+ connectors already exists. In addition, you can levera
 > **Note**
 > See also: [About DataMiner](https://aka.dataminer.services/about-dataminer).
 
-### About Skyline Communications
+## About Skyline Communications
 
 At Skyline Communications, we deal with world-class solutions that are deployed by leading companies around the globe. Check out [our proven track record](https://aka.dataminer.services/about-skyline) and see how we make our customers' lives easier by empowering them to take their operations to the next level.
-
-<!-- Uncomment below and add more info to provide more information about how to use this package. -->
-<!-- ## Getting Started -->
