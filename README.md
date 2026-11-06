@@ -7,6 +7,7 @@ Library providing common methods used to calculate rates.
 ## Projects
 
 * For more information about Skyline.DataMiner.Utils.Rates.Common, see [Utils.Rates.Common/README.md](Utils.Rates.Common/README.md).
+* For more information about Skyline.DataMiner.Utils.Rates.Protocol, see [Utils.Rates.Protocol/README.md](Utils.Rates.Protocol/README.md).
 
 ### About DataMiner
 
