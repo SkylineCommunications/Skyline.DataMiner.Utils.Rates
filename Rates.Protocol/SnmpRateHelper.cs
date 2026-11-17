@@ -87,7 +87,7 @@
 		/// Counters will be buffered until this minimum delta is met.</param>
 		/// <param name="maxDelta">Maximum <see cref="TimeSpan"/> allowed between 2 counters when calculating a rate.</param>
 		/// <param name="rateBase">Choose whether the rate should be calculated per second, minute, hour or day.</param>
-		/// <param name="overrideNegativeRatesWith">Optional. When provided, a negative rate (counter reset) is replaced by this value and the buffered counters are restarted from the new counter. When <see langword="null"/> (default), negative rates are returned as calculated.</param>
+		/// <param name="overrideNegativeRatesWith">Optional. When provided, a negative rate is replaced by this value and the buffered counters are restarted from the new counter. Meant for use cases where a negative rate is unexpected and undesired (e.g. caused by a counter reset or a device bug). When <see langword="null"/> (default), negative rates are returned as calculated.</param>
 		/// <returns>If the <paramref name="rateHelperSerialized"/> is valid, a new instance of the <see cref="SnmpRate32"/> class with all data found in <paramref name="rateHelperSerialized"/>.<br/>
 		/// Otherwise, throws a <see cref="JsonReaderException"/>.</returns>
 		public static SnmpRate32 FromJsonString(string rateHelperSerialized, TimeSpan minDelta, TimeSpan maxDelta, RateBase rateBase = RateBase.Second, double? overrideNegativeRatesWith = null)
@@ -146,7 +146,7 @@
 		/// Counters will be buffered until this minimum delta is met.</param>
 		/// <param name="maxDelta">Maximum <see cref="TimeSpan"/> allowed between 2 counters when calculating a rate.</param>
 		/// <param name="rateBase">Choose whether the rate should be calculated per second, minute, hour or day.</param>
-		/// <param name="overrideNegativeRatesWith">Optional. When provided, a negative rate (counter reset) is replaced by this value and the buffered counters are restarted from the new counter. When <see langword="null"/> (default), negative rates are returned as calculated.</param>
+		/// <param name="overrideNegativeRatesWith">Optional. When provided, a negative rate is replaced by this value and the buffered counters are restarted from the new counter. Meant for use cases where a negative rate is unexpected and undesired (e.g. caused by a counter reset or a device bug). When <see langword="null"/> (default), negative rates are returned as calculated.</param>
 		/// <returns>If the <paramref name="rateHelperSerialized"/> is valid, a new instance of the <see cref="SnmpRate64"/> class with all data found in <paramref name="rateHelperSerialized"/>.<br/>
 		/// Otherwise, throws a <see cref="JsonReaderException"/>.</returns>
 		public static SnmpRate64 FromJsonString(string rateHelperSerialized, TimeSpan minDelta, TimeSpan maxDelta, RateBase rateBase = RateBase.Second, double? overrideNegativeRatesWith = null)

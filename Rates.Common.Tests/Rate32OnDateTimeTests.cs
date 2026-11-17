@@ -230,20 +230,22 @@ namespace Skyline.DataMiner.Utils.Rates.Common.Tests
 
 		#region OverrideNegativeRates
 
+		private const double OverrideValue = -999;
+
 		[TestMethod]
 		public void Calculate_Valid_NegativeWithOverride()
 		{
 			// Arrange
 			DateTime start = DateTime.SpecifyKind(new DateTime(2000, 1, 1), DateTimeKind.Utc);
-			var helper = Rate32OnDateTime.FromJsonString("", minDelta, maxDelta, overrideNegativeRatesWith: 0);
+			var helper = Rate32OnDateTime.FromJsonString("", minDelta, maxDelta, overrideNegativeRatesWith: OverrideValue);
 
 			helper.Calculate(100, start);   // Need to first buffer some counter(s)
 
-			// Act
+			// Act: the counter decreases, so the calculated rate would be negative
 			double rate = helper.Calculate(50, start.AddSeconds(100));
 
 			// Assert
-			rate.Should().Be(0);
+			rate.Should().Be(OverrideValue);
 		}
 
 		[TestMethod]
@@ -251,18 +253,18 @@ namespace Skyline.DataMiner.Utils.Rates.Common.Tests
 		{
 			// Arrange
 			DateTime start = DateTime.SpecifyKind(new DateTime(2000, 1, 1), DateTimeKind.Utc);
-			var helper = Rate32OnDateTime.FromJsonString("", minDelta, maxDelta, overrideNegativeRatesWith: 0);
+			var helper = Rate32OnDateTime.FromJsonString("", minDelta, maxDelta, overrideNegativeRatesWith: OverrideValue);
 
 			helper.Calculate(0, start.AddSeconds(-200));
 			helper.Calculate(1, start.AddSeconds(-100));
 			helper.Calculate(100, start);
-			helper.Calculate(50, start.AddSeconds(100)).Should().Be(0);     // Counter reset
+			helper.Calculate(50, start.AddSeconds(100)).Should().Be(OverrideValue);     // Negative rate
 
 			// Act
-			double tooSoon = helper.Calculate(60, start.AddSeconds(110));   // Only 10s since the reset
+			double tooSoon = helper.Calculate(60, start.AddSeconds(110));   // Only 10s since the negative rate
 			double rate = helper.Calculate(110, start.AddSeconds(165));
 
-			// Assert: counters buffered before the reset must not be used.
+			// Assert: counters buffered before the negative rate must not be used.
 			tooSoon.Should().Be(FaultyReturn);
 			rate.Should().BeApproximately((110d - 50d) / 65d, Math.Pow(10, -9));
 		}
@@ -272,7 +274,7 @@ namespace Skyline.DataMiner.Utils.Rates.Common.Tests
 		{
 			// Arrange
 			DateTime start = DateTime.SpecifyKind(new DateTime(2000, 1, 1), DateTimeKind.Utc);
-			var helper = Rate32OnDateTime.FromJsonString("", minDelta, maxDelta, overrideNegativeRatesWith: 0);
+			var helper = Rate32OnDateTime.FromJsonString("", minDelta, maxDelta, overrideNegativeRatesWith: OverrideValue);
 
 			helper.Calculate(UInt32.MaxValue - 10, start);  // Need to first buffer some counter(s)
 
@@ -288,7 +290,7 @@ namespace Skyline.DataMiner.Utils.Rates.Common.Tests
 		{
 			// Arrange
 			DateTime start = DateTime.SpecifyKind(new DateTime(2000, 1, 1), DateTimeKind.Utc);
-			var helper1 = Rate32OnDateTime.FromJsonString("", minDelta, maxDelta, overrideNegativeRatesWith: 0);
+			var helper1 = Rate32OnDateTime.FromJsonString("", minDelta, maxDelta, overrideNegativeRatesWith: OverrideValue);
 			helper1.Calculate(100, start);
 
 			// Act

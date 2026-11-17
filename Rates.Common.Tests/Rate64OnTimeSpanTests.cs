@@ -198,37 +198,39 @@
 
 		#region OverrideNegativeRates
 
+		private const double OverrideValue = -999;
+
 		[TestMethod]
 		public void Calculate_Valid_NegativeWithOverride()
 		{
 			// Arrange
-			var helper = Rate64OnTimeSpan.FromJsonString("", minDelta, maxDelta, overrideNegativeRatesWith: 0);
+			var helper = Rate64OnTimeSpan.FromJsonString("", minDelta, maxDelta, overrideNegativeRatesWith: OverrideValue);
 
 			helper.Calculate(100, new TimeSpan(0, 0, 10));  // Need to first buffer some counter(s)
 
-			// Act
+			// Act: the counter decreases, so the calculated rate would be negative
 			double rate = helper.Calculate(50, new TimeSpan(0, 0, 100));
 
 			// Assert
-			rate.Should().Be(0);
+			rate.Should().Be(OverrideValue);
 		}
 
 		[TestMethod]
 		public void Calculate_Valid_NegativeWithOverride_RestartsBuffer()
 		{
 			// Arrange
-			var helper = Rate64OnTimeSpan.FromJsonString("", minDelta, maxDelta, overrideNegativeRatesWith: 0);
+			var helper = Rate64OnTimeSpan.FromJsonString("", minDelta, maxDelta, overrideNegativeRatesWith: OverrideValue);
 
 			helper.Calculate(0, new TimeSpan(0, 0, 10));
 			helper.Calculate(1, new TimeSpan(0, 0, 100));
 			helper.Calculate(100, new TimeSpan(0, 0, 100));
-			helper.Calculate(50, new TimeSpan(0, 0, 100)).Should().Be(0);   // Counter reset
+			helper.Calculate(50, new TimeSpan(0, 0, 100)).Should().Be(OverrideValue);   // Negative rate
 
 			// Act
-			double tooSoon = helper.Calculate(60, new TimeSpan(0, 0, 10));  // Only 10s since the reset
-			double rate = helper.Calculate(110, new TimeSpan(0, 0, 55));    // 65s since the reset
+			double tooSoon = helper.Calculate(60, new TimeSpan(0, 0, 10));  // Only 10s since the negative rate
+			double rate = helper.Calculate(110, new TimeSpan(0, 0, 55));    // 65s since the negative rate
 
-			// Assert: counters buffered before the reset must not be used.
+			// Assert: counters buffered before the negative rate must not be used.
 			tooSoon.Should().Be(FaultyReturn);
 			rate.Should().BeApproximately((110d - 50d) / 65d, Math.Pow(10, -9));
 		}
@@ -237,7 +239,7 @@
 		public void Calculate_Valid_OverflowWithOverride_StaysPositive()
 		{
 			// Arrange
-			var helper = Rate64OnTimeSpan.FromJsonString("", minDelta, maxDelta, overrideNegativeRatesWith: 0);
+			var helper = Rate64OnTimeSpan.FromJsonString("", minDelta, maxDelta, overrideNegativeRatesWith: OverrideValue);
 
 			helper.Calculate(UInt64.MaxValue - 10, new TimeSpan(0, 0, 10));     // Need to first buffer some counter(s)
 
@@ -252,7 +254,7 @@
 		public void Serialize_Valid_OverrideIsNotSerialized()
 		{
 			// Arrange
-			var helper1 = Rate64OnTimeSpan.FromJsonString("", minDelta, maxDelta, overrideNegativeRatesWith: 0);
+			var helper1 = Rate64OnTimeSpan.FromJsonString("", minDelta, maxDelta, overrideNegativeRatesWith: OverrideValue);
 			helper1.Calculate(100, new TimeSpan(0, 0, 10));
 
 			// Act

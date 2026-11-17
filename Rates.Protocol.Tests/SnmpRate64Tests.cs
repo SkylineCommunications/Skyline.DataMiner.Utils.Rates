@@ -363,28 +363,30 @@
 
 		#region OverrideNegativeRates
 
+		private const double OverrideValue = -999;
+
 		[TestMethod]
 		public void Calculate_Valid_NegativeWithOverride_RestartsBuffer()
 		{
 			// Arrange
 			SnmpDeltaHelper deltaHelper;
 			var protocolMock = new Mock<SLProtocol>();
-			var rateHelper = SnmpRate64.FromJsonString("", minDelta, maxDelta, overrideNegativeRatesWith: 0);
+			var rateHelper = SnmpRate64.FromJsonString("", minDelta, maxDelta, overrideNegativeRatesWith: OverrideValue);
 
 			deltaHelper = protocolMock.SetupFastDelta(GroupId, new TimeSpan(0, 0, 100));
 			rateHelper.Calculate(deltaHelper, 0);
 			rateHelper.Calculate(deltaHelper, 100);
-			double reset = rateHelper.Calculate(deltaHelper, 50);   // Counter reset
+			double negativeRate = rateHelper.Calculate(deltaHelper, 50);   // The counter decreases
 
 			// Act
 			deltaHelper = protocolMock.SetupFastDelta(GroupId, new TimeSpan(0, 0, 10));
-			double tooSoon = rateHelper.Calculate(deltaHelper, 60);     // Only 10s since the reset
+			double tooSoon = rateHelper.Calculate(deltaHelper, 60);     // Only 10s since the negative rate
 
 			deltaHelper = protocolMock.SetupFastDelta(GroupId, new TimeSpan(0, 0, 55));
-			double rate = rateHelper.Calculate(deltaHelper, 110);       // 65s since the reset
+			double rate = rateHelper.Calculate(deltaHelper, 110);       // 65s since the negative rate
 
-			// Assert: counters buffered before the reset must not be used.
-			reset.Should().Be(0);
+			// Assert: counters buffered before the negative rate must not be used.
+			negativeRate.Should().Be(OverrideValue);
 			tooSoon.Should().Be(FaultyReturn);
 			rate.Should().BeApproximately((110d - 50d) / 65d, Math.Pow(10, -9));
 		}
@@ -394,7 +396,7 @@
 		{
 			// Arrange
 			var protocolMock = new Mock<SLProtocol>();
-			var rateHelper = SnmpRate64.FromJsonString("", minDelta, maxDelta, overrideNegativeRatesWith: 0);
+			var rateHelper = SnmpRate64.FromJsonString("", minDelta, maxDelta, overrideNegativeRatesWith: OverrideValue);
 			rateHelper.Calculate(protocolMock.SetupFastDelta(GroupId, new TimeSpan(0, 0, 10)), 100);
 
 			// Act

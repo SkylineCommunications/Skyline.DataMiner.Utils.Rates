@@ -74,15 +74,21 @@ Beginning from counters received through other means:
         protocol.SetParameters(paramsToSet.Keys.ToArray(), paramsToSet.Values.ToArray());
 ```
 
-## Negative rates (counter resets)
+## Negative rates
 
-By default, a counter that decreases (e.g. because the device reset it) results in a negative rate.
-To avoid negative rates, pass the optional `overrideNegativeRatesWith` argument to `FromJsonString`:
+A negative rate is not necessarily wrong: for some counters a decreasing value is perfectly legitimate.
+For others it is unexpected and undesired, for example because the device reset the counter or because of a device bug.
+By default, negative rates are returned as calculated.
+
+Whether to use the optional `overrideNegativeRatesWith` argument depends on the use case: on whether a negative rate is legitimate for the counter at hand, and on whether a counter reset can be detected by other means.
+If an unexpected and undesired negative rate must not be returned, pass it to `FromJsonString`:
 
 ```cs
-        // Returns 0 (instead of a negative rate) when the counter was reset
-        Rate32OnDateTime rate32OnDatesHelper = Rate32OnDateTime.FromJsonString(bufferedData, minDelta, maxDelta, RateBase.Second, overrideNegativeRatesWith: 0);
+        // Returns -1 (instead of the negative rate) when an unexpected and undesired negative rate is calculated
+        Rate32OnDateTime rate32OnDatesHelper = Rate32OnDateTime.FromJsonString(bufferedData, minDelta, maxDelta, RateBase.Second, overrideNegativeRatesWith: -1);
 ```
+
+Choose an exceptional value (or `protocol.Leave` in a protocol) rather than `0`, as `0` is a proper rate value.
 
 When a negative rate is detected, the buffered counters are discarded, the new counter becomes the first buffered counter and the given value is returned.
 The default (`null`) keeps returning negative rates. Counter wrap-arounds are still handled as before and never result in a negative rate.
