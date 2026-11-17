@@ -1,4 +1,4 @@
-# Skyline.DataMiner.Utils.Rates
+# Skyline.DataMiner.Utils.Rates.Common
 
 ## About
 
