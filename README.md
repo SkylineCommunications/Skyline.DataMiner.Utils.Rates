@@ -1,4 +1,4 @@
-# Skyline.DataMiner.Utils.Rates.Common
+# Skyline.DataMiner.Utils.Rates
 
 ## Projects
 
