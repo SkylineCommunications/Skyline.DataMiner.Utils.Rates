@@ -195,6 +195,78 @@
 
 		#endregion
 
+		#region OverrideNegativeRates
+
+		[TestMethod]
+		public void Calculate_Valid_NegativeWithOverride()
+		{
+			// Arrange
+			var helper = Rate32OnTimeSpan.FromJsonString("", minDelta, maxDelta, overrideNegativeRatesWith: 0);
+
+			helper.Calculate(100, new TimeSpan(0, 0, 10));  // Need to first buffer some counter(s)
+
+			// Act
+			double rate = helper.Calculate(50, new TimeSpan(0, 0, 100));
+
+			// Assert
+			rate.Should().Be(0);
+		}
+
+		[TestMethod]
+		public void Calculate_Valid_NegativeWithOverride_RestartsBuffer()
+		{
+			// Arrange
+			var helper = Rate32OnTimeSpan.FromJsonString("", minDelta, maxDelta, overrideNegativeRatesWith: 0);
+
+			helper.Calculate(0, new TimeSpan(0, 0, 10));
+			helper.Calculate(1, new TimeSpan(0, 0, 100));
+			helper.Calculate(100, new TimeSpan(0, 0, 100));
+			helper.Calculate(50, new TimeSpan(0, 0, 100)).Should().Be(0);   // Counter reset
+
+			// Act
+			double tooSoon = helper.Calculate(60, new TimeSpan(0, 0, 10));  // Only 10s since the reset
+			double rate = helper.Calculate(110, new TimeSpan(0, 0, 55));    // 65s since the reset
+
+			// Assert: counters buffered before the reset must not be used.
+			tooSoon.Should().Be(FaultyReturn);
+			rate.Should().BeApproximately((110d - 50d) / 65d, Math.Pow(10, -9));
+		}
+
+		[TestMethod]
+		public void Calculate_Valid_OverflowWithOverride_StaysPositive()
+		{
+			// Arrange
+			var helper = Rate32OnTimeSpan.FromJsonString("", minDelta, maxDelta, overrideNegativeRatesWith: 0);
+
+			helper.Calculate(UInt32.MaxValue - 10, new TimeSpan(0, 0, 10));     // Need to first buffer some counter(s)
+
+			// Act
+			double rate = helper.Calculate(9, new TimeSpan(0, 0, 100));
+
+			// Assert
+			rate.Should().Be(20d / 100d);
+		}
+
+		[TestMethod]
+		public void Serialize_Valid_OverrideIsNotSerialized()
+		{
+			// Arrange
+			var helper1 = Rate32OnTimeSpan.FromJsonString("", minDelta, maxDelta, overrideNegativeRatesWith: 0);
+			helper1.Calculate(100, new TimeSpan(0, 0, 10));
+
+			// Act
+			string serialized = helper1.ToJsonString();
+			var helper2 = Rate32OnTimeSpan.FromJsonString(serialized, minDelta, maxDelta);
+			var helper3 = Rate32OnTimeSpan.FromJsonString(serialized, minDelta, maxDelta, overrideNegativeRatesWith: -5);
+
+			// Assert
+			serialized.Should().NotContainEquivalentOf("OverrideNegativeRatesWith");
+			helper2.OverrideNegativeRatesWith.Should().BeNull();
+			helper3.OverrideNegativeRatesWith.Should().Be(-5);
+		}
+
+		#endregion
+
 		#region SerializeTests
 
 		[TestMethod]

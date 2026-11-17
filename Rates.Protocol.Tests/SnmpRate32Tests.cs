@@ -361,6 +361,51 @@
 
 		#endregion
 
+		#region OverrideNegativeRates
+
+		[TestMethod]
+		public void Calculate_Valid_NegativeWithOverride_RestartsBuffer()
+		{
+			// Arrange
+			SnmpDeltaHelper deltaHelper;
+			var protocolMock = new Mock<SLProtocol>();
+			var rateHelper = SnmpRate32.FromJsonString("", minDelta, maxDelta, overrideNegativeRatesWith: 0);
+
+			deltaHelper = protocolMock.SetupFastDelta(GroupId, new TimeSpan(0, 0, 100));
+			rateHelper.Calculate(deltaHelper, 0);
+			rateHelper.Calculate(deltaHelper, 100);
+			double reset = rateHelper.Calculate(deltaHelper, 50);   // Counter reset
+
+			// Act
+			deltaHelper = protocolMock.SetupFastDelta(GroupId, new TimeSpan(0, 0, 10));
+			double tooSoon = rateHelper.Calculate(deltaHelper, 60);     // Only 10s since the reset
+
+			deltaHelper = protocolMock.SetupFastDelta(GroupId, new TimeSpan(0, 0, 55));
+			double rate = rateHelper.Calculate(deltaHelper, 110);       // 65s since the reset
+
+			// Assert: counters buffered before the reset must not be used.
+			reset.Should().Be(0);
+			tooSoon.Should().Be(FaultyReturn);
+			rate.Should().BeApproximately((110d - 50d) / 65d, Math.Pow(10, -9));
+		}
+
+		[TestMethod]
+		public void Serialize_Valid_OverrideIsNotSerialized()
+		{
+			// Arrange
+			var protocolMock = new Mock<SLProtocol>();
+			var rateHelper = SnmpRate32.FromJsonString("", minDelta, maxDelta, overrideNegativeRatesWith: 0);
+			rateHelper.Calculate(protocolMock.SetupFastDelta(GroupId, new TimeSpan(0, 0, 10)), 100);
+
+			// Act
+			string serialized = rateHelper.ToJsonString();
+
+			// Assert
+			serialized.Should().NotContainEquivalentOf("OverrideNegativeRatesWith");
+		}
+
+		#endregion
+
 		#region SerializeTests
 
 		[TestMethod]

@@ -73,3 +73,17 @@ Beginning from counters received through other means:
 
         protocol.SetParameters(paramsToSet.Keys.ToArray(), paramsToSet.Values.ToArray());
 ```
+
+## Negative rates (counter resets)
+
+By default, a counter that decreases (e.g. because the device reset it) results in a negative rate.
+To avoid negative rates, pass the optional `overrideNegativeRatesWith` argument to `FromJsonString`:
+
+```cs
+        // Returns 0 (instead of a negative rate) when the counter was reset
+        SnmpRate32 snmpRateHelper = SnmpRate32.FromJsonString(bufferedData, minDelta, maxDelta, RateBase.Second, overrideNegativeRatesWith: 0);
+```
+
+When a negative rate is detected, the buffered counters are discarded, the new counter becomes the first buffered counter and the given value is returned.
+The default (`null`) keeps returning negative rates. Counter wrap-arounds are still handled as before and never result in a negative rate.
+The option is not serialized, so it must be provided each time `FromJsonString` is called.
